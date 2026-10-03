@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>OptiFrame</title>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>OptiFrame <small>par SaraVision</small></h1>
+      <button id="qr-btn" type="button">Ouvrir sur mobile (QR)</button>
+    </header>
+    <p class="sub">Mesurez vos deux verres en photo, ajustez la monture, puis téléchargez le fichier 3D.</p>
+
+    <div id="demo-banner" class="banner">
+      <span id="demo-text">Mode démo: les contours sont simulés, rien n'est mesuré sur les photos.</span>
+      <button id="demo-fill" type="button">Remplir avec des verres de démo</button>
+    </div>
+
+    <div class="layout">
+    <div class="stage">
+    <div class="viewer">
+      <canvas id="gl" aria-label="Aperçu 3D de la monture"></canvas>
+      <div class="status" id="status" role="status">Chargement du moteur 3D…</div>
+    </div>
+    <div class="row"><button class="primary" id="dl-stl" type="button" disabled>Télécharger monture.stl</button></div>
+    <section class="card">
+      <h2>Aperçu 2D de la monture (mm)</h2>
+      <svg id="plan" viewBox="0 0 100 50" role="img" aria-label="Plan 2D des verres et de la monture"></svg>
+      <p class="plan-legend" id="plan-legend">Le plan apparaît quand les deux verres sont mesurés.</p>
+    </section>
+    </div>
+
+    <div class="panels">
+    <div id="eyes"></div>
+    <section class="card" id="params"></section>
+    </div>
+    </div>
+  </main>
+
+  <dialog id="qr-dialog">
+    <div id="qr-box"></div>
+    <p class="qr-url"></p>
+    <form method="dialog"><button>Fermer</button></form>
+  </dialog>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
