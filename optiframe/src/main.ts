@@ -11,7 +11,9 @@ import { measure as realMeasurer } from "./vision/measure";
 import { demoMeasurer } from "./vision/demo";
 import { VisionError, type Measurer } from "./vision/types";
 import { showQr } from "./ui/qr";
+import { captureFromCamera, CameraUnavailable } from "./ui/camera";
 import type { FrameResult } from "./geometry/frame";
+import { contourSVG } from "./export/svg";
 
 const $ = <T extends HTMLElement>(selector: string) =>
   document.querySelector(selector) as T;
@@ -39,6 +41,8 @@ const translations = {
     readyTitle: "Votre monture est prête",
     readyHelp: "Téléchargez le fichier STL prêt pour l'impression 3D.",
     download: "Télécharger le fichier STL",
+    svgLeft: "Exporter le contour gauche (SVG 1:1)",
+    svgRight: "Exporter le contour droit (SVG 1:1)",
     retry: "Réessayer",
     errorTitle: "Impossible d'analyser cette photo",
     genericMeasureError:
@@ -65,6 +69,8 @@ const translations = {
     readyTitle: "Your frame is ready",
     readyHelp: "Download the STL file ready for 3D printing.",
     download: "Download STL file",
+    svgLeft: "Export left contour (SVG 1:1)",
+    svgRight: "Export right contour (SVG 1:1)",
     retry: "Try again",
     errorTitle: "This picture could not be analyzed",
     genericMeasureError:
@@ -82,6 +88,7 @@ const params = { ...DEFAULT_PARAMS };
 const contours: Partial<Record<Eye, Contour>> = {};
 
 let engine: ManifoldToplevel | null = null;
+let enginePromise: Promise<ManifoldToplevel | null> = Promise.resolve(null);
 let last: FrameResult | null = null;
 let currentEye: Eye = "L";
 let flowState: FlowState = "left";
@@ -101,8 +108,10 @@ const fileInput = $<HTMLInputElement>("#file-input");
 const loadingEl = $<HTMLElement>("#loading");
 const loadingTextEl = $<HTMLElement>("#loading-text");
 const brandByEl = $<HTMLElement>("#brand-by");
-const cameraBtn = $<HTMLLabelElement>("#camera-btn");
+const cameraBtn = $<HTMLButtonElement>("#camera-btn");
 const cameraInput = $<HTMLInputElement>("#camera-input");
+const svgLeftBtn = $<HTMLButtonElement>("#svg-left-btn");
+const svgRightBtn = $<HTMLButtonElement>("#svg-right-btn");
 
 function t(key: TranslationKey): string {
   return translations[lang][key];
@@ -133,6 +142,8 @@ function render(): void {
   retryBtn.hidden = true;
   dlBtn.hidden = true;
   cameraBtn.hidden = true;
+  svgLeftBtn.hidden = true;  
+  svgRightBtn.hidden = true;  
   setLoading(false);
 
   if (flowState === "left") {
@@ -180,6 +191,10 @@ function render(): void {
     helpEl.textContent = t("readyHelp");
     dlBtn.hidden = false;
     dlBtn.disabled = !last;
+    svgLeftBtn.textContent = t("svgLeft");
+    svgRightBtn.textContent = t("svgRight");
+    svgLeftBtn.hidden = false;
+    svgRightBtn.hidden = false;
     setStatus();
     return;
   }
@@ -200,12 +215,23 @@ async function measureEye(eye: Eye, image: Blob): Promise<void> {
   setLoading(true, t("measuring"));
 
   try {
-    const result = await measurer(image, {
+    const options = {
       eye,
-      onProgress: (message) => {
+      onProgress: (message: string) => {
         loadingTextEl.textContent = message || t("measuring");
       },
-    });
+    };
+    let result;
+    try {
+      result = await measurer(image, options);
+    } catch (error) {
+      // Real pipeline not plugged in yet: fall back to simulated lenses.
+      if (error instanceof VisionError && error.code === "not_connected") {
+        result = await demoMeasurer(image, options);
+      } else {
+        throw error;
+      }
+    }
 
     contours[eye] = parseContour(eye, result.contour);
     setLoading(false);
@@ -239,6 +265,7 @@ async function buildFinalFrame(): Promise<void> {
 
   if (!left || !right) return;
 
+  engine = await enginePromise;
   if (!engine) {
     lastError = t("engineError");
     flowState = "error";
@@ -262,6 +289,35 @@ async function buildFinalFrame(): Promise<void> {
   }
 }
 
+/* ---------- camera: in-app getUserMedia first, native capture input as fallback ---------- */
+
+cameraBtn.addEventListener("click", async () => {
+  // No getUserMedia (plain HTTP on a LAN address, old browser): use the native camera / file picker.
+  // This must run synchronously inside the click, or the browser blocks it.
+  if (!navigator.mediaDevices?.getUserMedia) {
+    cameraInput.value = "";
+    cameraInput.click();
+    return;
+  }
+  try {
+    const blob = await captureFromCamera();
+    if (blob) void measureEye(currentEye, blob);
+  } catch (error) {
+    // Permission denied: show the message, the "téléverser" link stays available.
+    setStatus(
+      error instanceof CameraUnavailable ? error.message : t("genericMeasureError"),
+      true,
+    );
+  }
+});
+
+cameraInput.addEventListener("change", () => {
+  const file = cameraInput.files?.[0];
+  if (file) void measureEye(currentEye, file);
+});
+
+/* ---------- upload, retry, download, language, QR ---------- */
+
 uploadBtn.addEventListener("click", () => {
   fileInput.value = "";
   fileInput.click();
@@ -273,9 +329,28 @@ fileInput.addEventListener("change", () => {
 });
 
 retryBtn.addEventListener("click", () => {
+  if (contours.L && contours.R) {
+    flowState = "building";
+    render();
+    void buildFinalFrame();
+    return;
+  }
   flowState = currentEye === "L" ? "left" : "right";
   render();
 });
+
+function exportSvg(eye: Eye): void {
+  const c = contours[eye];
+  if (!c) return;
+  download(
+    `verre_${eye === "L" ? "gauche" : "droit"}.svg`,
+    contourSVG(c),
+    "image/svg+xml",
+  );
+}
+
+svgLeftBtn.addEventListener("click", () => exportSvg("L"));
+svgRightBtn.addEventListener("click", () => exportSvg("R"));
 
 dlBtn.addEventListener("click", () => {
   if (last) {
@@ -285,11 +360,6 @@ dlBtn.addEventListener("click", () => {
       "model/stl",
     );
   }
-});
-
-cameraInput.addEventListener("change", () => {
-  const file = cameraInput.files?.[0];
-  if (file) void measureEye(currentEye, file);
 });
 
 document.querySelectorAll<HTMLButtonElement>("[data-lang]").forEach((button) => {
@@ -306,17 +376,18 @@ $("#qr-btn").addEventListener("click", () =>
   void showQr($<HTMLDialogElement>("#qr-dialog"), $("#qr-box")),
 );
 
+/* ---------- boot ---------- */
+
 render();
 
-loadEngine()
+enginePromise = loadEngine()
   .then((loadedEngine) => {
     engine = loadedEngine;
+    return loadedEngine;
   })
   .catch((error) => {
     console.error(error);
-    lastError = t("engineError");
-    flowState = "error";
-    render();
+    return null;
   });
 
 // Dev hook: inject a contour from the console (points in mm, see src/types.ts).

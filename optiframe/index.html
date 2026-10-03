@@ -42,14 +42,15 @@
         Placez le verre correctement puis prenez une photo.
       </p>
 
-      <label id="camera-btn" class="primary action-button" for="camera-input">
+      <button id="camera-btn" class="primary action-button" type="button">
         Prendre une photo
-      </label>
+      </button>
 
       <button id="upload-btn" class="upload-link" type="button">
         ou téléverser une photo
       </button>
-      
+
+      <!-- Fallback only: native camera when getUserMedia is unavailable -->
       <input
         id="camera-input"
         type="file"
@@ -71,6 +72,14 @@
 
       <button id="dl-stl" class="primary action-button" type="button" hidden disabled>
         Télécharger le fichier STL
+      </button>
+
+      <button id="svg-left-btn" class="secondary action-button" type="button" hidden>
+        Exporter le contour gauche (SVG 1:1)
+      </button>
+
+      <button id="svg-right-btn" class="secondary action-button" type="button" hidden>
+        Exporter le contour droit (SVG 1:1)
       </button>
 
       <button id="retry-btn" class="secondary action-button" type="button" hidden>
