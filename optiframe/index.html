@@ -42,14 +42,15 @@
         Placez le verre correctement puis prenez une photo.
       </p>
 
-      <label id="camera-btn" class="primary action-button" for="camera-input">
+      <button id="camera-btn" class="primary action-button" type="button">
         Prendre une photo
-      </label>
+      </button>
 
       <button id="upload-btn" class="upload-link" type="button">
         ou téléverser une photo
       </button>
-      
+
+      <!-- Fallback only: native camera when getUserMedia is unavailable -->
       <input
         id="camera-input"
         type="file"

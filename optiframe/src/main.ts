@@ -11,6 +11,7 @@ import { measure as realMeasurer } from "./vision/measure";
 import { demoMeasurer } from "./vision/demo";
 import { VisionError, type Measurer } from "./vision/types";
 import { showQr } from "./ui/qr";
+import { captureFromCamera, CameraUnavailable } from "./ui/camera";
 import type { FrameResult } from "./geometry/frame";
 
 const $ = <T extends HTMLElement>(selector: string) =>
@@ -101,7 +102,7 @@ const fileInput = $<HTMLInputElement>("#file-input");
 const loadingEl = $<HTMLElement>("#loading");
 const loadingTextEl = $<HTMLElement>("#loading-text");
 const brandByEl = $<HTMLElement>("#brand-by");
-const cameraBtn = $<HTMLLabelElement>("#camera-btn");
+const cameraBtn = $<HTMLButtonElement>("#camera-btn");
 const cameraInput = $<HTMLInputElement>("#camera-input");
 
 function t(key: TranslationKey): string {
@@ -262,6 +263,35 @@ async function buildFinalFrame(): Promise<void> {
   }
 }
 
+/* ---------- camera: in-app getUserMedia first, native capture input as fallback ---------- */
+
+cameraBtn.addEventListener("click", async () => {
+  // No getUserMedia (plain HTTP on a LAN address, old browser): use the native camera / file picker.
+  // This must run synchronously inside the click, or the browser blocks it.
+  if (!navigator.mediaDevices?.getUserMedia) {
+    cameraInput.value = "";
+    cameraInput.click();
+    return;
+  }
+  try {
+    const blob = await captureFromCamera();
+    if (blob) void measureEye(currentEye, blob);
+  } catch (error) {
+    // Permission denied: show the message, the "téléverser" link stays available.
+    setStatus(
+      error instanceof CameraUnavailable ? error.message : t("genericMeasureError"),
+      true,
+    );
+  }
+});
+
+cameraInput.addEventListener("change", () => {
+  const file = cameraInput.files?.[0];
+  if (file) void measureEye(currentEye, file);
+});
+
+/* ---------- upload, retry, download, language, QR ---------- */
+
 uploadBtn.addEventListener("click", () => {
   fileInput.value = "";
   fileInput.click();
@@ -287,11 +317,6 @@ dlBtn.addEventListener("click", () => {
   }
 });
 
-cameraInput.addEventListener("change", () => {
-  const file = cameraInput.files?.[0];
-  if (file) void measureEye(currentEye, file);
-});
-
 document.querySelectorAll<HTMLButtonElement>("[data-lang]").forEach((button) => {
   button.addEventListener("click", () => {
     const next = button.dataset.lang;
@@ -305,6 +330,8 @@ document.querySelectorAll<HTMLButtonElement>("[data-lang]").forEach((button) => 
 $("#qr-btn").addEventListener("click", () =>
   void showQr($<HTMLDialogElement>("#qr-dialog"), $("#qr-box")),
 );
+
+/* ---------- boot ---------- */
 
 render();
 
