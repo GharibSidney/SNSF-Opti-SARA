@@ -21,7 +21,7 @@ export class Viewer {
     const sun = new THREE.DirectionalLight(0xffffff, 1.4);
     sun.position.set(40, -60, 120);
     this.scene.add(sun);
-    const color = getComputedStyle(document.documentElement).getPropertyValue("--mesh").trim() || "#2f8f93";
+    const color = getComputedStyle(document.documentElement).getPropertyValue("--mesh").trim() || "#2f4fc4";
     this.material = new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.05 });
     new ResizeObserver(() => this.resize()).observe(canvas);
     this.resize();
