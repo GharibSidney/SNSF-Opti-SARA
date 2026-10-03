@@ -3,46 +3,88 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8f7f4">
   <title>OptiFrame</title>
 </head>
 <body>
-  <main>
-    <header>
-      <h1>OptiFrame <small>par SaraVision</small></h1>
-      <button id="qr-btn" type="button">Ouvrir sur mobile (QR)</button>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand" aria-label="OptiFrame by SaraVision">
+        <span class="brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 64 24">
+            <path d="M3 11h5m48 0h5M8 11c0-4 3-7 7-7h7c4 0 7 3 7 7s-3 7-7 7h-7c-4 0-7-3-7-7Zm27 0c0-4 3-7 7-7h7c4 0 7 3 7 7s-3 7-7 7h-7c-4 0-7-3-7-7Zm-6 0h6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </span>
+        <div class="brand-text">
+          <h1>OptiFrame</h1>
+          <small id="brand-by">par SaraVision</small>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <div class="language-switcher" aria-label="Language">
+          <button type="button" data-lang="fr" class="active">FR</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <button id="qr-btn" class="qr-button" type="button">QR</button>
+      </div>
     </header>
-    <p class="sub">Mesurez vos deux verres en photo, ajustez la monture, puis téléchargez le fichier 3D.</p>
 
-    <div id="demo-banner" class="banner">
-      <span id="demo-text">Mode démo: les contours sont simulés, rien n'est mesuré sur les photos.</span>
-      <button id="demo-fill" type="button">Remplir avec des verres de démo</button>
-    </div>
+    <section class="flow-card" aria-live="polite">
+      <p id="step-label" class="step-label"></p>
+      <h2 id="flow-title">Prendre une photo du verre gauche</h2>
+      <p id="flow-help" class="flow-help">
+        Placez le verre correctement puis prenez une photo.
+      </p>
 
-    <div class="layout">
-    <div class="stage">
-    <div class="viewer">
-      <canvas id="gl" aria-label="Aperçu 3D de la monture"></canvas>
-      <div class="status" id="status" role="status">Chargement du moteur 3D…</div>
-    </div>
-    <div class="row"><button class="primary" id="dl-stl" type="button" disabled>Télécharger monture.stl</button></div>
-    <section class="card">
-      <h2>Aperçu 2D de la monture (mm)</h2>
-      <svg id="plan" viewBox="0 0 100 50" role="img" aria-label="Plan 2D des verres et de la monture"></svg>
-      <p class="plan-legend" id="plan-legend">Le plan apparaît quand les deux verres sont mesurés.</p>
+      <label id="camera-btn" class="primary action-button" for="camera-input">
+        Prendre une photo
+      </label>
+
+      <button id="upload-btn" class="upload-link" type="button">
+        ou téléverser une photo
+      </button>
+      
+      <input
+        id="camera-input"
+        type="file"
+        accept="image/*"
+        capture="environment"
+        hidden
+      >
+      <input
+        id="file-input"
+        type="file"
+        accept="image/*"
+        hidden
+      >
+
+      <div id="loading" class="loading" hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="loading-text">Analyse en cours…</span>
+      </div>
+
+      <button id="dl-stl" class="primary action-button" type="button" hidden disabled>
+        Télécharger le fichier STL
+      </button>
+
+      <button id="retry-btn" class="secondary action-button" type="button" hidden>
+        Réessayer
+      </button>
+
+      <p id="status" class="status" role="status"></p>
     </section>
-    </div>
-
-    <div class="panels">
-    <div id="eyes"></div>
-    <section class="card" id="params"></section>
-    </div>
-    </div>
   </main>
 
   <dialog id="qr-dialog">
     <div id="qr-box"></div>
     <p class="qr-url"></p>
-    <form method="dialog"><button>Fermer</button></form>
+    <form method="dialog"><button id="qr-close">Fermer</button></form>
   </dialog>
 
   <script type="module" src="/src/main.ts"></script>
