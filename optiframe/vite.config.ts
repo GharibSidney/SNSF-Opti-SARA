@@ -4,4 +4,13 @@ import { defineConfig } from "vite";
 export default defineConfig({
   base: "./",
   build: { target: "es2022" },
+  server: {
+    proxy: {
+      // Forward /api/* to the Python Flask vision server during development.
+      "/api": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+      },
+    },
+  },
 });

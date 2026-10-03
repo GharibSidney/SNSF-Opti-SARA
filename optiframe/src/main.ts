@@ -222,6 +222,7 @@ async function measureEye(eye: Eye, image: Blob): Promise<void> {
       },
     };
     let result;
+    console.log("salut")
     try {
       result = await measurer(image, options);
     } catch (error) {
@@ -237,6 +238,7 @@ async function measureEye(eye: Eye, image: Blob): Promise<void> {
     setLoading(false);
 
     if (eye === "L") {
+      console.log("Left eye")
       currentEye = "R";
       flowState = "right";
       render();
@@ -279,6 +281,8 @@ async function buildFinalFrame(): Promise<void> {
   try {
     last = buildFrame(engine, left, right, params);
     flowState = "done";
+    console.log("done")
+
     render();
   } catch (error) {
     console.error(error);
