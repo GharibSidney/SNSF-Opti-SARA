@@ -1,9 +1,16 @@
 export class CameraUnavailable extends Error {}
 
+export interface CameraLabels {
+  takePhoto: string;
+  cancel: string;
+  unavailable: string;
+  denied: string;
+}
+
 /** In-app camera (getUserMedia, HTTPS required). Resolves null if the user cancels. */
-export async function captureFromCamera(): Promise<Blob | null> {
+export async function captureFromCamera(labels: CameraLabels): Promise<Blob | null> {
   if (!navigator.mediaDevices?.getUserMedia) {
-    throw new CameraUnavailable("Caméra indisponible sur cet appareil. Utilisez « Importer une photo ».");
+    throw new CameraUnavailable(labels.unavailable);
   }
   let stream: MediaStream;
   try {
@@ -12,13 +19,20 @@ export async function captureFromCamera(): Promise<Blob | null> {
       audio: false,
     });
   } catch {
-    throw new CameraUnavailable("Accès à la caméra refusé. Autorisez-le dans le navigateur ou utilisez « Importer une photo ».");
+    throw new CameraUnavailable(labels.denied);
   }
 
   const dlg = document.createElement("dialog");
   dlg.className = "camera";
   dlg.innerHTML = `<video playsinline muted autoplay></video>
-    <div class="row"><button class="primary" data-act="shot">Prendre la photo</button><button data-act="cancel">Annuler</button></div>`;
+    <div class="row">
+      <button class="primary" data-act="shot"></button>
+      <button data-act="cancel"></button>
+    </div>`;
+  // Set text via textContent rather than interpolating into innerHTML
+  dlg.querySelector('[data-act="shot"]')!.textContent = labels.takePhoto;
+  dlg.querySelector('[data-act="cancel"]')!.textContent = labels.cancel;
+
   document.body.appendChild(dlg);
   const video = dlg.querySelector("video")!;
   video.srcObject = stream;

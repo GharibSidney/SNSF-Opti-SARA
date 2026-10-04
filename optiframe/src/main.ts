@@ -23,6 +23,10 @@ type FlowState = "left" | "right" | "building" | "done" | "error";
 
 const translations = {
   fr: {
+    camUnavailable: "Caméra indisponible sur cet appareil. Utilisez « Importer une photo ».",
+    camDenied: "Accès à la caméra refusé. Autorisez-le dans le navigateur ou utilisez « Importer une photo ».",
+    takePhoto: "Prendre la photo",
+    cancel: "Annuler",
     by: "par SaraVision",
     stepLeft: "Étape 1 sur 2",
     stepRight: "Étape 2 sur 2",
@@ -51,6 +55,10 @@ const translations = {
     qrClose: "Fermer",
   },
   en: {
+    camUnavailable: "Camera unavailable on this device. Use 'Import photo'.",
+    camDenied: "Camera access denied. Allow it in the browser or use 'Import photo'.",
+    takePhoto: "Take photo",
+    cancel: "Cancel",
     by: "by SaraVision",
     stepLeft: "Step 1 of 2",
     stepRight: "Step 2 of 2",
@@ -296,18 +304,20 @@ async function buildFinalFrame(): Promise<void> {
 /* ---------- camera: in-app getUserMedia first, native capture input as fallback ---------- */
 
 cameraBtn.addEventListener("click", async () => {
-  // No getUserMedia (plain HTTP on a LAN address, old browser): use the native camera / file picker.
-  // This must run synchronously inside the click, or the browser blocks it.
   if (!navigator.mediaDevices?.getUserMedia) {
     cameraInput.value = "";
     cameraInput.click();
     return;
   }
   try {
-    const blob = await captureFromCamera();
+    const blob = await captureFromCamera({
+      takePhoto: t("takePhoto"),
+      cancel: t("cancel"),
+      unavailable: t("camUnavailable"),
+      denied: t("camDenied"),
+    });
     if (blob) void measureEye(currentEye, blob);
   } catch (error) {
-    // Permission denied: show the message, the "téléverser" link stays available.
     setStatus(
       error instanceof CameraUnavailable ? error.message : t("genericMeasureError"),
       true,
