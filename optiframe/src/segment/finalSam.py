@@ -11,8 +11,8 @@ from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
 from segment_anything import sam_model_registry, SamPredictor
 
 # CONFIG
-IMAGE_PATH = "/Users/sidney/Documents/university/Fall20206/CodeML/optiframe-participants/images/IMG_9300.jpg"
-SAM_CHECKPOINT = "/Users/sidney/Documents/university/Fall20206/CodeML/optiframe-participants/segment-anything/sam_vit_h_4b8939.pth"
+IMAGE_PATH = "C:/Users/sidne/OneDrive/Bureau/Fall2026/SNSF-Opti-SARA/images/IMG_9300.jpg"
+SAM_CHECKPOINT = "C:/Users/sidne/OneDrive/Bureau/Fall2026/SNSF-Opti-SARA/optiframe/src/sam_vit_h_4b8939.pth"
 PROMPT = "eyeglass lens."          # lowercase, ends with a period
 BOX_THRESHOLD, TEXT_THRESHOLD = 0.3, 0.25
 MAX_SIDE = 2048                    # larger = better ArUco corner precision

@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src", "segment-anyth
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-from finalSam import process_image
+from src.segment.finalSam import process_image
 
 app = Flask(__name__)
 CORS(app)  # allow calls from the Vite dev server on a different port
