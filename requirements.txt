@@ -1,0 +1,11 @@
+flask
+flask_cors
+pillow_heif
+opencv-python
+pycocotools
+matplotlib
+onnxruntime
+onnx
+scipy
+transformers
+# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu130
