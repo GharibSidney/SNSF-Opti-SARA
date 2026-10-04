@@ -92,9 +92,7 @@ def _run_one(path: str) -> dict:
     return result
 
 
-# ---------------------------------------------------------------------------
 # Benchmark runner + CLI entry point
-# ---------------------------------------------------------------------------
 def run_benchmark() -> None:
     # record=True lets us export everything printed to the console as text/HTML.
     console = Console(record=True)
@@ -104,7 +102,7 @@ def run_benchmark() -> None:
         console.print(f"[red]No images found in {IMAGES_DIR}[/red]")
         return
 
-    # ---- Header / note ---------------------------------------------------
+    #  Header / note 
     console.print()
     console.print(Panel(
         f"Running the vision pipeline on [bold]{len(paths)}[/bold] images from:\n"
@@ -115,7 +113,7 @@ def run_benchmark() -> None:
     ))
     console.print()
 
-    # ---- Build the table --------------------------------------------------
+    #  Build the table 
     table = Table(
         box=box.ROUNDED,
         show_lines=True,
@@ -177,7 +175,7 @@ def run_benchmark() -> None:
 
     total_elapsed = time.time() - total_start
 
-    # ---- Add a bold "AVERAGE" summary row at the bottom of the table -----
+    #  Add a bold "AVERAGE" summary row at the bottom of the table 
     avg_lenses = sum(lens_counts) / len(lens_counts) if lens_counts else 0.0
     avg_mean   = sum(mean_errs)   / len(mean_errs)   if mean_errs   else float("nan")
     avg_max    = sum(max_errs)    / len(max_errs)     if max_errs    else float("nan")
@@ -204,7 +202,7 @@ def run_benchmark() -> None:
         style="bold",
     )
 
-    # ---- Render table + summary ------------------------------------------
+    #  Render table + summary 
     console.print(table)
     console.print()
 
@@ -229,7 +227,7 @@ def run_benchmark() -> None:
         console.print("[bold green]All images produced at least one lens.[/bold green]")
         console.print()
 
-    # ---- Save the report to disk (.txt + styled .html) --------------------
+    #  Save the report to disk (.txt + styled .html)
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_dir = os.path.dirname(os.path.abspath(__file__))
     txt_path  = os.path.join(out_dir, f"benchmark_{stamp}.txt")

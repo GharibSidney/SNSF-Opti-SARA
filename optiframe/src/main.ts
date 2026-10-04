@@ -301,7 +301,7 @@ async function buildFinalFrame(): Promise<void> {
   }
 }
 
-/* ---------- camera: in-app getUserMedia first, native capture input as fallback ---------- */
+/* camera: in-app getUserMedia first, native capture input as fallback */
 
 cameraBtn.addEventListener("click", async () => {
   if (!navigator.mediaDevices?.getUserMedia) {
@@ -330,7 +330,7 @@ cameraInput.addEventListener("change", () => {
   if (file) void measureEye(currentEye, file);
 });
 
-/* ---------- upload, retry, download, language, QR ---------- */
+/*  upload, retry, download, language, QR  */
 
 uploadBtn.addEventListener("click", () => {
   fileInput.value = "";
@@ -390,7 +390,7 @@ $("#qr-btn").addEventListener("click", () =>
   void showQr($<HTMLDialogElement>("#qr-dialog"), $("#qr-box")),
 );
 
-/* ---------- boot ---------- */
+/*  boot  */
 
 render();
 

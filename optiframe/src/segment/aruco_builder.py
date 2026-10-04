@@ -2,7 +2,7 @@ import cv2
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 
-# ---------------- CONFIG ----------------
+#  CONFIG 
 PAGE_W, PAGE_H = 215.9, 279.4      # US Letter in mm
 MARKER_MM = 50.0                   # outer black square, border included
 EDGE = 35.0                        # marker center distance from page edges (mm)

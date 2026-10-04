@@ -32,7 +32,7 @@ def health():
 
 @app.route("/api/measure", methods=["POST"])
 def measure_endpoint():
-    # --- validate input ---------------------------------------------------
+    #  validate input 
     if "image" not in request.files:
         return jsonify({"error": "missing_image", "message": "No 'image' file in the request."}), 400
 
@@ -47,7 +47,7 @@ def measure_endpoint():
     if len(data) == 0:
         return jsonify({"error": "bad_image", "message": "Uploaded file is empty."}), 400
 
-    # --- run pipeline ------------------------------------------------------
+    #  run pipeline 
     try:
         results = process_image(data, eye=eye, from_back=from_back)
     except RuntimeError as exc:
