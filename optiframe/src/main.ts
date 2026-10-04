@@ -23,6 +23,7 @@ type FlowState = "left" | "right" | "building" | "done" | "error";
 
 const translations = {
   fr: {
+    restart: "Nouvelle paire de verres",
     camUnavailable: "Caméra indisponible sur cet appareil. Utilisez « Importer une photo ».",
     camDenied: "Accès à la caméra refusé. Autorisez-le dans le navigateur ou utilisez « Importer une photo ».",
     takePhoto: "Prendre la photo",
@@ -55,6 +56,7 @@ const translations = {
     qrClose: "Fermer",
   },
   en: {
+    restart: "Start over with new lenses",
     camUnavailable: "Camera unavailable on this device. Use 'Import photo'.",
     camDenied: "Camera access denied. Allow it in the browser or use 'Import photo'.",
     takePhoto: "Take photo",
@@ -94,6 +96,8 @@ const demo = new URLSearchParams(location.search).has("demo");
 const measurer: Measurer = demo ? demoMeasurer : realMeasurer;
 const params = { ...DEFAULT_PARAMS };
 const contours: Partial<Record<Eye, Contour>> = {};
+
+const restartBtn = $<HTMLButtonElement>("#restart-btn");
 
 let engine: ManifoldToplevel | null = null;
 let enginePromise: Promise<ManifoldToplevel | null> = Promise.resolve(null);
@@ -140,6 +144,7 @@ function render(): void {
   brandByEl.textContent = t("by");
   retryBtn.textContent = t("retry");
   dlBtn.textContent = t("download");
+
   $<HTMLButtonElement>("#qr-close").textContent = t("qrClose");
 
   document.querySelectorAll<HTMLButtonElement>("[data-lang]").forEach((button) => {
@@ -152,6 +157,8 @@ function render(): void {
   cameraBtn.hidden = true;
   svgLeftBtn.hidden = true;  
   svgRightBtn.hidden = true;  
+  restartBtn.hidden = true;
+  restartBtn.textContent = t("restart");
   setLoading(false);
 
   if (flowState === "left") {
@@ -203,6 +210,7 @@ function render(): void {
     svgRightBtn.textContent = t("svgRight");
     svgLeftBtn.hidden = false;
     svgRightBtn.hidden = false;
+    restartBtn.hidden = false
     setStatus();
     return;
   }
@@ -389,6 +397,18 @@ document.querySelectorAll<HTMLButtonElement>("[data-lang]").forEach((button) => 
 $("#qr-btn").addEventListener("click", () =>
   void showQr($<HTMLDialogElement>("#qr-dialog"), $("#qr-box")),
 );
+
+function resetFlow(): void {
+  delete contours.L;
+  delete contours.R;
+  last = null;
+  lastError = "";
+  currentEye = "L";
+  flowState = "left";
+  render();
+}
+
+restartBtn.addEventListener("click", resetFlow);
 
 /* ---------- boot ---------- */
 
