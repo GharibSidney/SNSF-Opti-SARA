@@ -9,3 +9,4 @@ onnx
 scipy
 transformers
 # pip install torch torchvision --index-url https://download.pytorch.org/whl/cu130
+# cd optiframe/src/segment/segment_anything; pip install -e .
