@@ -1,13 +1,13 @@
-OptiFrame - Des verres recycles a la monture imprimee en 3D
-Defi CodeML - Sante Numerique Sans Frontieres (SN-SF)
+OptiFrame - Des verres recyclés à la monture imprimée en 3D
+Défi CodeML - Santé Numérique Sans Frontières (SN-SF)
 ================================================================
 
 Équipe : SaraVision
-Membres et roles :
-  - Sidney Gharib - Capture et vision (dispositif, reference, redressement, mesures)
-  - Aditya Shetty - Donnees et IA (jeu de donnees, entrainement, export du modele)
-  - Rahma Ammari - 3D et interface (monture STL, apercu 3D, ecrans mobiles)
-  - Aya Merdjaoui - Integration (Git, mise en ligne, README)
+Membres et rôles :
+  - Sidney Gharib - Capture et vision (dispositif, référence, redressement, mesures)
+  - Aditya Shetty - Données et IA (jeu de données, entraînement, export du modèle)
+  - Rahma Ammari - 3D et interface (monture STL, aperçu 3D, écrans mobiles)
+  - Aya Merdjaoui - Intégration (Git, mise en ligne, README)
 
 
 ----------------------------------------------------------------
@@ -15,40 +15,37 @@ Membres et roles :
 ----------------------------------------------------------------
 URL publique (HTTPS) : https://snsf-opti-sara-one.vercel.app/
 
-QR code de l'URL     : [chemin du fichier, ex. docs/qrcode.png]
-
-Hebergement          : [GitHub Pages / Netlify / Vercel / Cloudflare Pages / Hugging Face Spaces / Render]
+Hébergement          : Vercel, GitHub
 
 Serveur Python       : Oui, le pipeline de mesure tourne en Python.
 
 L'app s'ouvre en un scan de QR code : aucune installation, aucun compte,
-aucune cle API. Testee sur Chrome (Android) et Safari (iOS) recents.
+aucune clé API. Testé sur Chrome (Android) et Safari (iOS).
 
 
 ----------------------------------------------------------------
 2. DESCRIPTION
 ----------------------------------------------------------------
-OptiFrame est une web app mobile qui, a partir d'une photo d'un verre de
-lunettes recycle, mesure sa forme au millimetre pres et genere une monture
-sur mesure imprimable en 3D, meme quand le verre gauche et le verre droit
-ont des formes differentes.
+OptiFrame est une web app mobile qui, à partir d'une photo d'un verre de
+lunettes recyclé, mesure sa forme au millimètre près et génère une monture
+sur mesure imprimable en 3D, même quand le verre gauche et le verre droit
+ont des formes différentes.
 
 Pipeline (de la photo au STL) :
-  1. Redresser   : reperer l'objet de taille connue, calculer l'homographie,
-                   obtenir l'echelle en pixels par mm.
-  2. Segmenter   : isoler le verre dans l'image redressee (seuillage et
-                   contours, puis modele entraine pour les cas difficiles).
+  1. Redresser   : repérer l'objet de taille connue, calculer l'homographie,
+                   obtenir l'échelle en pixels par mm.
+  2. Segmenter   : isoler le verre dans l'image redressée (Grounding DINO
+                   pour détecter le verre, Segment Anything pour son masque).
   3. Mesurer     : convertir le contour en mm, le lisser, calculer
-                   A (largeur), B (hauteur) et le perimetre.
-  4. Monture     : decaler chaque contour vers l'exterieur, ajouter une
+                   A (largeur), B (hauteur) et le périmètre.
+  4. Monture     : décaler chaque contour vers l'extérieur, ajouter une
                    rainure ou un jeu de clipsage, relier les deux cercles par
-                   un pont, ajouter les tenons des branches. Apercu 3D + STL.
+                   un pont, ajouter les tenons des branches. Export STL.
   5. Mise en ligne : page permettant de photographier un verre gauche et un
-                   verre droit, regler le pont (18 mm par defaut), obtenir
-                   mesures, apercu 3D et STL.
+                   verre droit et d'obtenir le STL de la monture.
 
-Le contour est conserve comme un polygone (liste de points en mm) : il sert
-a la fois a la mesure, a l'export SVG et a la generation 3D.
+Le contour est conservé comme un polygone (liste de points en mm) : il sert
+à la fois à la mesure, à l'export SVG et à la génération 3D.
 
 
 ----------------------------------------------------------------
@@ -56,16 +53,15 @@ a la fois a la mesure, a l'export SVG et a la generation 3D.
 ----------------------------------------------------------------
   1. Ouvrir l'URL (ou scanner le QR code) sur un smartphone.
   2. Monter le dispositif de capture (voir section 4).
-  3. Choisir l'oeil (gauche ou droit) pour le premier verre.
-     Convention : le cote nasal du verre est oriente vers le centre de la
+  3. Photographier d'abord le verre gauche.
+     Convention : le côté nasal du verre est orienté vers le centre de la
      monture.
-  4. Prendre la photo avec la camera integree de l'app (import d'un fichier
-     en repli si la camera est refusée).
-  5. Verifier l'image de controle (reference, redressement, contour).
-  6. Repeter pour le second verre.
-  7. Regler la largeur du pont (18 mm par defaut).
-  8. Lire les mesures (A, B, périmètre), consulter l'aperçu 3D.
-  9. Télécharger monture.stl et, si besoin, le contour en SVG 1:1.
+  4. Prendre la photo avec la caméra intégrée de l'app (import d'un fichier
+     en repli si la caméra est refusée).
+  5. Vérifier l'image de contrôle (référence, redressement, contour).
+  6. Répéter pour le second verre.
+  7. Lire les mesures (A, B, périmètre).
+  8. Télécharger monture.stl et, si besoin, le contour en SVG 1:1.
 
 Messages d'erreur clairs prévus si : objet de référence manquant, photo
 floue, verre mal placé.
@@ -74,223 +70,205 @@ floue, verre mal placé.
 ----------------------------------------------------------------
 4. DISPOSITIF DE CAPTURE
 ----------------------------------------------------------------
-Doit pouvoir etre remonté par le jury en moins de 2 minutes.
+Doit pouvoir être remonté par le jury en moins de 2 minutes.
 
 Description    : Nécessite une feuille US Letter imprimée portant six repères ArUco; le verre est posé sur la feuille. La photo doit être prise de dessus couvrant l'entièreté de la feuille blanche.
-Materiel       : téléphone, feuille blanche A4 avec repères ArUco.
-Objet de reference : les six repères ArUco de la feuille.
-Dictionnaire ArUco : [ex. DICT_4X4_50] - taille reelle du marqueur : [xx,x mm]
-Impression     : imprimer a 100 % (sans "ajuster a la page") et verifier la
-                 taille du marqueur au pied a coulisse.
-Etapes de montage :
+Matériel       : téléphone, feuille US Letter imprimée avec repères ArUco.
+Objet de référence : les six repères ArUco de la feuille.
+Dictionnaire ArUco : DICT_4X4_50 - taille du marqueur : 50 mm (carré noir extérieur, bordure comprise).
+Impression     : imprimer à 100 % (sans "ajuster à la page") et vérifier la
+                 taille du marqueur au pied à coulisse.
+Étapes de montage :
   1. Placer le verre gauche au centre de la feuille de papier avec repères ArUco.
-  2. Prendre une photo du dessus, de façon parrallèle à la feuille.
+  2. Prendre une photo du dessus, de façon parallèle à la feuille.
   3. Placer le verre droit au centre de la feuille de papier avec repères ArUco.
-  4. Prendre une photo du dessus, de façon parrallèle à la feuille.
+  4. Prendre une photo du dessus, de façon parallèle à la feuille.
   5. Attendre la génération du fichier .stl de la monture 3D.
 
-
-Verification de l'echelle :l'erreur de reprojection des repères est calculée à chaque photo (au-dessus de 1 mm, vérifier l'échelle d'impression).
+Vérification de l'échelle : l'erreur de reprojection des repères est calculée à chaque photo (au-dessus de 1 mm, vérifier l'échelle d'impression).
 
 
 ----------------------------------------------------------------
 5. LANCEMENT LOCAL
 ----------------------------------------------------------------
-Prerequis : Node.js 20.19 ou plus (ou 22.12 et plus), Python 3.12, un navigateur récent, le fichier de poids sam_vit_h_4b8939.pth.
+Prérequis : Node.js 20.19 ou plus (ou 22.12 et plus), Python 3.12, un navigateur récent, le fichier de poids sam_vit_h_4b8939.pth.
 
-  git clone [\[URL DU DEPOT\]](https://github.com/GharibSidney/SNSF-Opti-SARA.git)
-  
-  cd [D:\Projects\CodeML 2\SNSF-Opti-SARA>]
-  
-  [npm install]
-  
-  [npm run dev]  
-  
-  -> ouvrir https://snsf-opti-sara-one.vercel.app/
+  git clone https://github.com/GharibSidney/SNSF-Opti-SARA.git
 
-Note : la camera exige HTTPS (ou localhost). Pour tester sur telephone en
-local, utiliser un tunnel (Cloudflare Tunnel, ngrok) ou deployer en ligne.
+  cd SNSF-Opti-SARA/optiframe
+
+  npm install
+
+  npm run dev
+
+  -> ouvrir http://localhost:5173
+
+Note : la caméra exige HTTPS (ou localhost). Pour tester sur téléphone en
+local, utiliser un tunnel (Cloudflare Tunnel, ngrok) ou déployer en ligne.
 
 ----------------------------------------------------------------
-6. PAGE "PAS A PAS" (palier 1)
+6. PAGE "PAS À PAS" (palier 1)
 ----------------------------------------------------------------
 Une photo avec ses images intermediaires :
-  - Photo d'origine            : [chemin]
-  - Reference detectee         : [chemin]
-  - Image redressee (vue de dessus) : [chemin]
-  - Contour du verre           : [chemin]
-  - Mesures obtenues           : A = [xx,x] mm  B = [xx,x] mm  P = [xxx] mm
-
-(Disponible aussi dans l'app : [menu / page])
-
+  - Photo d'origine            : page_pas_a_pas/origine.png
+  - Reference detectée         : page_pas_a_pas/ref_detected.png
+  - Marqueurs Aruco detect     : page_pas_a_pas/markers_detected.png
+  - Image redressee            : page_pas_a_pas/rectified_overlay.png
+  - Contour du verre           : page_pas_a_pas/contour_mm_0.png
+  - Mesures obtenues           : A = 48.8 mm  B = 44.0 mm
 
 ----------------------------------------------------------------
-7. DONNEES ET IA (palier 2)
+7. DONNÉES ET IA (palier 2)
 ----------------------------------------------------------------
-7.1 Jeux de donnees utilises (source, licence, usage)
-  | Jeu de donnees | Source / lien | Licence | Usage |
-  |----------------|---------------|---------|-------|
-  | [ex. Trans10K] | [lien]        | [...]   | [pre-entrainement] |
-  | [Images synthetiques maison] | [script] | [...] | [entrainement] |
-  | [Photos de verres de l'equipe] | [-] | [...] | [validation] |
+7.1 Jeux de données utilisés (source, licence, usage)
+Le pipeline utilise deux modèles préentraînés.
+
+Sources en section 7.2.
+
+| Jeu de données | Usage |
+|---|---|
+| 28 photos de verres de l'équipe | Validation du pipeline de vision |
 
 
-7.2 Modeles utilises (source, licence)
-  | Modele | Source / lien | Licence | Role |
-  |--------|---------------|---------|------|
-  | [ex. Segment Anything / U-Net] | [lien] | [...] | [...] |
+7.2 Modèles utilisés (source, licence)
+| Modèle | Source / lien | Licence | Rôle |
+|---|---|---|---|
+| Grounding DINO tiny (`IDEA-Research/grounding-dino-tiny`) | https://huggingface.co/IDEA-Research/grounding-dino-tiny | Apache 2.0 | Détecter le verre à partir du texte « eyeglass lens. » |
+| Segment Anything, ViT-H (`sam_vit_h_4b8939.pth`) | https://github.com/facebookresearch/segment-anything | Apache 2.0 | Masque du verre à partir de la boîte détectée |
 
-7.3 Methode de constitution des donnees
-  - Collecte reelle : [nb de verres, nb de photos, conditions]
-  - Donnees synthetiques : [methode : rendu 3D, compositing, reflets
-    simules, fonds et eclairages varies]
-  - Augmentation : [rotations, perspective, bruit, luminosite, flou...]
-  - Verite terrain : mesures au pied a coulisse selon le systeme "boxing"
-    (A = largeur, B = hauteur, ISO 8624), [3] mesures par dimension,
-    moyenne retenue.
+7.3 Méthode de constitution des données
+  - Collecte réelle : 28 photos de verres de l'équipe.
+  - Vérité terrain : mesures au pied à coulisse selon le système "boxing"
+    (A = largeur, B = hauteur, ISO 8624).
 
-7.4 Methode d'entrainement
-  - Architecture : [...]
-  - Plateforme : [Google Colab / Kaggle]  Framework : [PyTorch / TF]
-  - Hyperparametres : [epochs, lr, taille d'image, batch]
-  - Decoupage train/val/test : [...]
-  - Export : [ONNX / TensorFlow.js]  Execution : [navigateur / serveur]
-  - Notebook : [chemin]
+7.4 Méthode d'entraînement
+  Aucun entraînement : les modèles préentraînés sont exécutés sur serveur avec PyTorch.
 
 7.5 Mesures de performance sur nos propres verres
-  | Metrique | Valeur |
-  |----------|--------|
-  | IoU / Dice du masque | [..] |
-  | Erreur absolue moyenne sur A | [.. mm] |
-  | Erreur absolue moyenne sur B | [.. mm] |
-  | Ecart entre prises (meme verre) | [.. mm] |
-  | Temps de traitement par paire (telephone milieu de gamme) | [.. s] |
+| Métrique | Valeur |
+|---|---|
+| Photos où un verre est détecté | 28 sur 28 (aucun échec) |
+| Erreur moyenne rapportée par le benchmark | 0,333 mm en moyenne (de 0,215 à 0,507 mm selon la photo) |
+| Erreur maximale rapportée par le benchmark | 1,269 mm en moyenne par photo (pire cas : 3,016 mm, IMG_93133) |
+| Temps de traitement par photo | 0,87 s en moyenne (28 photos en 24,46 s) |
+| Temps de traitement par paire de verres | environ 1,7 s (2 × 0,87 s), hors envoi de la photo et génération de la monture |
 
-7.6 Modele entraine
-  Poids charges par l'app : sam_vit_h_4b8939.pth
-  Lien de telechargement (si > 100 Mo) : (https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth)
+7.6 Modèle entraîné
+  Pas de modèle entraîné par l'équipe. Poids chargés par l'app : sam_vit_h_4b8939.pth
+  Lien de téléchargement (si > 100 Mo) : https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
 
 
 ----------------------------------------------------------------
 8. MONTURE 3D (palier 3)
 ----------------------------------------------------------------
-  - Entrees : contour gauche, contour droit (formes eventuellement
-    differentes), largeur du pont (defaut 18 mm).
-  - Cercles : decalage du contour vers l'exterieur ([x] mm, via Clipper).
-  - Jeu de clipsage : [0,1 a 0,3 mm] entre le verre et le cercle
-    (un vrai verre est legerement bombe), rainure : [profondeur / largeur].
-  - Pont et tenons des branches : presents.
-  - Bibliotheques : [three.js, manifold-3d / JSCAD]
-  - STL valide (maillage ferme), imprimable sans supports excessifs.
-  - Fichier : monture.stl telechargeable depuis l'app, genere pour la paire
-    de verres de demonstration.
-  - Parametres d'impression conseilles : [materiau, hauteur de couche,
-    remplissage, orientation]
+  - Entrées : contour gauche, contour droit (formes éventuellement
+    différentes), largeur du pont (défaut 18 mm).
+  - Cercles : décalage du contour vers l'extérieur (3 mm, via manifold-3d,
+    qui s'appuie sur Clipper2).
+  - Jeu de clipsage : 0,2 mm entre le verre et le fond de la rainure
+    (un vrai verre est légèrement bombé). Rainure en V à faible pente :
+    retenue de 0,3 mm sur les deux faces, 0,5 mm de profondeur, pour une
+    épaisseur de monture de 4 mm.
+  - Pont et tenons des branches : présents.
+  - Bibliothèques : manifold-3d
+  - STL valide (maillage fermé), vérifié par `npm test` ; conçu pour
+    s'imprimer sans supports.
+  - Fichier : monture.stl téléchargeable depuis l'app, généré pour la paire
+    de verres de démonstration.
+  - Orientation d'impression : face avant à plat sur le plateau (z = 0).
 
 
 ----------------------------------------------------------------
 9. EXPORT DU CONTOUR (SVG 1:1)
 ----------------------------------------------------------------
-Un bouton exporte le contour en SVG a l'echelle 1:1. Pour verifier :
-imprimer le SVG a 100 % (sans mise a l'echelle), poser le verre sur le
-trace : il doit l'epouser.
+Un bouton exporte le contour en SVG à l'échelle 1:1. Pour vérifier :
+imprimer le SVG à 100 % (sans mise à l'échelle), poser le verre sur le
+tracé : il doit l'épouser.
 
 
 ----------------------------------------------------------------
 10. VALIDATION ET BONUS (palier 4, facultatif)
 ----------------------------------------------------------------
+Vérification automatique de la monture : voir section 8 (`npm test` : maillage fermé, un seul bloc, pont de 18 mm, jeu de 0,2 mm).
 
 
 ----------------------------------------------------------------
 11. CHOIX TECHNIQUES
 ----------------------------------------------------------------
-Langage / framework : TypeScript
-Vision : OpenCV.js, js-aruco2
-Geometrie : Clipper, manifold-3d / JSCAD
-3D : three.js
-IA dans le navigateur : [ONNX Runtime Web / TensorFlow.js]
-Traitement : [dans le navigateur (donnees gardees sur le telephone,
-              fonctionne avec peu ou pas de connexion) / serveur Python]
-Justification des choix : [...]
+  Langage / framework : TypeScript (Vite) pour l'app, Python (Flask) pour le serveur de mesure
+
+  Vision : OpenCV (Python) : repères ArUco, homographie, contours
+
+  IA : Grounding DINO tiny et Segment Anything ViT-H (PyTorch), sur serveur
+
+  Traitement : serveur Python pour la mesure ; génération de la monture dans le navigateur.
+
+  Justification des choix : Le modèle SAM ViT-H (environ 2,5 Go) ne peut pas tourner dans un téléphone, donc la mesure passe
+  par un serveur Python.
 
 
 ----------------------------------------------------------------
-12. LIMITES CONNUES (a reconnaitre honnetement)
+12. LIMITES CONNUES
 ----------------------------------------------------------------
-  - [ex. verres teintes ou antireflet : contour moins fiable]
-  - [ex. photo tres inclinee : erreur d'echelle]
-  - [ex. verres tres bombes : biais sur le bord]
-  - [ex. temps de traitement sur telephone d'entree de gamme]
-  - [ex. non teste sur iOS < xx]
+- Sur nos 28 photos, l'erreur maximale rapportée par le benchmark dépasse 1 mm sur 20 photos (jusqu'à 3,0 mm sur la pire), même si l'erreur moyenne est de 0,333 mm.
+- Le temps de 0,87 s par photo est celui du serveur, sans l'envoi de la photo ni la génération de la monture sur le téléphone.
+- Le verre doit être posé droit sur la feuille, côté nasal selon la convention ; un verre posé de travers change A et B.
+- L'épaisseur du verre au-dessus du plan de la feuille n'est pas corrigée.
+- Un verre par photo ; feuille au format Letter uniquement.
+- Monture sans branches ; jeu et retenue à ajuster après essai d'impression avec de vrais verres.
 
 
 ----------------------------------------------------------------
-13. OUTILS D'IA CITES
+13. OUTILS D'IA CITÉS
 ----------------------------------------------------------------
-Assistants de code (Claude, ChatGPT, Copilot, ...) : [lesquels, pour quoi]
-Modeles preentraines : voir section 7.2
+Assistants de code : Claude (Anthropic), pour le code de l'application web, du générateur de monture et de leurs tests.
+Modèles préentraînés : voir section 7.2
 Chaque membre sait expliquer le code de sa partie au jury.
 
 
 ----------------------------------------------------------------
-14. LIVRABLES (CHECKLIST DE REMISE)
+14. RAPPEL DES CRITÈRES D'ÉVALUATION (100 points)
 ----------------------------------------------------------------
-  [ ] Web app en ligne : URL HTTPS + QR code, ouverte sur un telephone neuf
-  [ ] Code source : depot Git public (ou partage avec le jury) + ce README
-  [ ] Dossier "donnees et IA" : section 7 (ou notebook)
-  [ ] Modele entraine : poids charges par l'app (+ lien si > 100 Mo)
-  [ ] Page "pas a pas" : section 6
-  [ ] Fichier 3D monture.stl telechargeable depuis l'app
-  [ ] Dispositif de capture remontable en 2 minutes
-  [ ] Demonstration : 5 min sur telephone en direct + 2 min de questions
-  [ ] Video de secours de la demo
-  [ ] Demo repetee, chaque membre sait expliquer sa partie
+  Précision des mesures (A et B, 2 échantillons du jury) ... 30
 
+     (30 pts si erreur moyenne <= 1 mm, dégressif jusqu'à 0 pt à 4 mm)
 
-----------------------------------------------------------------
-15. RAPPEL DES CRITERES D'EVALUATION (100 points)
-----------------------------------------------------------------
-  Precision des mesures (A et B, 2 echantillons du jury) ... 30
-  
-     (30 pts si erreur moyenne <= 1 mm, degressif jusqu'a 0 pt a 4 mm)
-     
-  Qualite du contour (SVG 1:1) ........................... 5
-  
-  Robustesse (angles, eclairages, paire du jury) .......... 10
-  
-  Donnees et IA ........................................... 15
-  
+  Qualité du contour (SVG 1:1) ........................... 5
+
+  Robustesse (angles, éclairages, paire du jury) .......... 10
+
+  Données et IA ........................................... 15
+
   Web app mobile .......................................... 15
-  
-  Monture generee (STL) ................................... 10
-  
-  Qualite du code ......................................... 5
-  
-  Presentation ............................................ 10
-  
 
-Deroulement de l'evaluation : le jury ouvre l'app via le QR code, remonte
-le dispositif, photographie les deux echantillons, compare A et B au pied
-a coulisse, puis telecharge le STL. Les echantillons du jury ne doivent
-pas etre modifies ni marques. Aucune annotation manuelle pendant
-l'evaluation : le traitement doit etre automatique.
+  Monture générée (STL) ................................... 10
+
+  Qualité du code ......................................... 5
+
+  Présentation ............................................ 10
+
+
+Déroulement de l'évaluation : le jury ouvre l'app via le QR code, remonte
+le dispositif, photographie les deux échantillons, compare A et B au pied
+à coulisse, puis télécharge le STL. Les échantillons du jury ne doivent
+pas être modifiés ni marqués. Aucune annotation manuelle pendant
+l'évaluation : le traitement doit être automatique.
 
 
 ----------------------------------------------------------------
-16. CONTRAINTES A RESPECTER
+15. CONTRAINTES À RESPECTER
 ----------------------------------------------------------------
-  - Pas de service payant ni d'API fermee dans la version finale.
-  - Tout modele et jeu de donnees public autorise s'il est cite avec sa
+  - Pas de service payant ni d'API fermée dans la version finale.
+  - Tout modèle et jeu de données public autorisé s'il est cité avec sa
     licence.
-  - Aucune donnee personnelle dans les jeux de donnees.
-  - Resultat en moins de 30 secondes par paire de verres (telephone milieu
+  - Aucune donnée personnelle dans les jeux de données.
+  - Résultat en moins de 30 secondes par paire de verres (téléphone milieu
     de gamme).
-  - Utilisable a une main, interface lisible sur ~6 pouces.
+  - Utilisable à une main, interface lisible sur ~6 pouces.
 
 
 ----------------------------------------------------------------
-17. LICENCE ET CREDITS
+16. LICENCE ET CRÉDITS
 ----------------------------------------------------------------
-Licence du code : [MIT / Apache-2.0 / ...]
-Remerciements : Sante Numerique Sans Frontieres (SN-SF), [mentors],
-                [bibliotheques et jeux de donnees cites ci-dessus]
+Remerciements : Santé Numérique Sans Frontières (SN-SF), Grounding DINO (IDEA-Research), Segment Anything (Meta AI),
+OpenCV, manifold-3d, Flask, Vite.
