@@ -3,10 +3,10 @@ import type { Contour, Eye } from "../types";
 
 /**
  * Base URL of the Python vision server.
- * In dev, Vite proxies /api/* to http://localhost:5000 (see vite.config.ts).
- * In production, set this to the deployed server URL.
+ * Dev: VITE_API_URL is unset, so /api/* goes through the Vite proxy to http://localhost:5000.
+ * Production (Vercel): set VITE_API_URL to the ngrok URL, e.g. https://scion-powdered-luckiness.ngrok-free.dev
  */
-const SERVER_BASE = "/api";
+const SERVER_BASE = "https://scion-powdered-luckiness.ngrok-free.dev/api";
 
 /**
  * >>> THE VISION / AI WORKS HERE <<<
@@ -38,6 +38,8 @@ export const measure: Measurer = async (
   try {
     response = await fetch(`${SERVER_BASE}/measure`, {
       method: "POST",
+      // Skips ngrok's free-tier warning page. Do NOT set Content-Type: the browser sets it for FormData.
+      headers: { "ngrok-skip-browser-warning": "1" },
       body: form,
     });
   } catch {
