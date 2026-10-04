@@ -47,6 +47,25 @@ register_heif_opener()
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
+# ---------------------------------------------------------------------------
+# MODEL LOADING — runs once when this module is imported (i.e. at server start).
+# Previously these were instantiated inside `segment_lenses()` on every request,
+# which reloaded ~1GB of weights per call and made each API request take several
+# extra seconds. Loading them once at module scope keeps them resident in memory
+# and reused across all subsequent calls.
+# ---------------------------------------------------------------------------
+print("[finalSam] Loading Grounding DINO model...")
+_MODEL_ID = "IDEA-Research/grounding-dino-tiny"
+_processor = AutoProcessor.from_pretrained(_MODEL_ID)
+_dino = AutoModelForZeroShotObjectDetection.from_pretrained(_MODEL_ID).to(device)
+
+print("[finalSam] Loading SAM (ViT-H) model...")
+_sam = sam_model_registry["vit_h"](checkpoint=SAM_CHECKPOINT)
+_sam.to(device)
+_predictor = SamPredictor(_sam)
+print("[finalSam] Models ready.")
+
+
 # 0. LOAD
 def load_image(path, max_side=MAX_SIDE):
     img = ImageOps.exif_transpose(Image.open(path)).convert("RGB")
@@ -91,14 +110,11 @@ def process_image(data: bytes, eye: str, from_back: bool = False, max_side=MAX_S
 
 # 1. SEGMENT (DINO + SAM)
 def segment_lenses(img, image):
-    model_id = "IDEA-Research/grounding-dino-tiny"
-    processor = AutoProcessor.from_pretrained(model_id)
-    dino = AutoModelForZeroShotObjectDetection.from_pretrained(model_id).to(device)
-
-    inputs = processor(images=img, text=PROMPT, return_tensors="pt").to(device)
+    # Reuse the module-level Grounding DINO processor/model (loaded once at import time).
+    inputs = _processor(images=img, text=PROMPT, return_tensors="pt").to(device)
     with torch.no_grad():
-        outputs = dino(**inputs)
-    results = processor.post_process_grounded_object_detection(
+        outputs = _dino(**inputs)
+    results = _processor.post_process_grounded_object_detection(
         outputs, inputs.input_ids,
         threshold=BOX_THRESHOLD, text_threshold=TEXT_THRESHOLD,  # 'box_threshold=' on older versions
         target_sizes=[img.size[::-1]],
@@ -107,13 +123,13 @@ def segment_lenses(img, image):
     if len(boxes) == 0:
         raise RuntimeError("lens_not_found")
 
-    sam = sam_model_registry["vit_h"](checkpoint=SAM_CHECKPOINT)
-    predictor = SamPredictor(sam)
-    predictor.set_image(image)
+    # Reuse the module-level SAM predictor; set_image() must run per image
+    # (it computes the image embedding), but the model weights stay loaded.
+    _predictor.set_image(image)
 
     masks = []
     for box in boxes:
-        m, _, _ = predictor.predict(box=box, multimask_output=False)
+        m, _, _ = _predictor.predict(box=box, multimask_output=False)
         masks.append((m[0] * 255).astype(np.uint8))
     return boxes, masks
 
