@@ -11,7 +11,7 @@ from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
 from segment_anything import sam_model_registry, SamPredictor
 
 # CONFIG
-IMAGE_PATH = "C:/Users/sidne/OneDrive/Bureau/Fall2026/SNSF-Opti-SARA/images/IMG_9300.jpg"
+IMAGE_PATH = "C:/Users/sidne/OneDrive/Bureau/Fall2026/SNSF-Opti-SARA/images/IMG_9292.jpg"
 SAM_CHECKPOINT = "C:/Users/sidne/OneDrive/Bureau/Fall2026/SNSF-Opti-SARA/optiframe/src/sam_vit_h_4b8939.pth"
 PROMPT = "eyeglass lens."          # lowercase, ends with a period
 BOX_THRESHOLD, TEXT_THRESHOLD = 0.3, 0.25
@@ -47,13 +47,11 @@ register_heif_opener()
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
-# ---------------------------------------------------------------------------
 # MODEL LOADING — runs once when this module is imported (i.e. at server start).
 # Previously these were instantiated inside `segment_lenses()` on every request,
 # which reloaded ~1GB of weights per call and made each API request take several
 # extra seconds. Loading them once at module scope keeps them resident in memory
 # and reused across all subsequent calls.
-# ---------------------------------------------------------------------------
 print("[finalSam] Loading Grounding DINO model...")
 _MODEL_ID = "IDEA-Research/grounding-dino-tiny"
 _processor = AutoProcessor.from_pretrained(_MODEL_ID)
