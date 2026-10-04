@@ -13,13 +13,13 @@ Membres et roles :
 ----------------------------------------------------------------
 1. LIEN DE L'APPLICATION
 ----------------------------------------------------------------
-URL publique (HTTPS) : [https://...]
+URL publique (HTTPS) : https://snsf-opti-sara-one.vercel.app/
 
 QR code de l'URL     : [chemin du fichier, ex. docs/qrcode.png]
 
 Hebergement          : [GitHub Pages / Netlify / Vercel / Cloudflare Pages / Hugging Face Spaces / Render]
 
-Serveur Python       : [Non / Oui - URL active jusqu'a la fin des deliberations]
+Serveur Python       : Oui, le pipeline de mesure tourne en Python.
 
 L'app s'ouvre en un scan de QR code : aucune installation, aucun compte,
 aucune cle API. Testee sur Chrome (Android) et Safari (iOS) recents.
@@ -76,38 +76,37 @@ floue, verre mal placé.
 ----------------------------------------------------------------
 Doit pouvoir etre remonté par le jury en moins de 2 minutes.
 
-Description    : [ex. portable en ecran blanc plein ecran, feuille de papier
-                 calque pour diffuser, feuille A4 avec marqueurs ArUco]
-Materiel       : [liste]
-Objet de reference : [marqueur ArUco / carte bancaire 85,60 x 53,98 mm /
-                 feuille A4 / piece de monnaie]
+Description    : Nécessite une feuille US Letter imprimée portant six repères ArUco; le verre est posé sur la feuille. La photo doit être prise de dessus couvrant l'entièreté de la feuille blanche.
+Materiel       : téléphone, feuille blanche A4 avec repères ArUco.
+Objet de reference : les six repères ArUco de la feuille.
 Dictionnaire ArUco : [ex. DICT_4X4_50] - taille reelle du marqueur : [xx,x mm]
 Impression     : imprimer a 100 % (sans "ajuster a la page") et verifier la
                  taille du marqueur au pied a coulisse.
 Etapes de montage :
-  1. [...]
-  2. [...]
-  3. [...]
-Photo du dispositif : [chemin, ex. docs/dispositif.jpg]
+  1. Placer le verre gauche au centre de la feuille de papier avec repères ArUco.
+  2. Prendre une photo du dessus, de façon parrallèle à la feuille.
+  3. Placer le verre droit au centre de la feuille de papier avec repères ArUco.
+  4. Prendre une photo du dessus, de façon parrallèle à la feuille.
+  5. Attendre la génération du fichier .stl de la monture 3D.
 
-Verification de l'echelle : l'objet de reference mesure dans l'image
-redressee doit faire sa taille reelle en mm.
+
+Verification de l'echelle :l'erreur de reprojection des repères est calculée à chaque photo (au-dessus de 1 mm, vérifier l'échelle d'impression).
 
 
 ----------------------------------------------------------------
 5. LANCEMENT LOCAL
 ----------------------------------------------------------------
-Prerequis : [Node.js xx / Python 3.x / navigateur recent]
+Prerequis : Node.js 20.19 ou plus (ou 22.12 et plus), Python 3.12, un navigateur récent, le fichier de poids sam_vit_h_4b8939.pth.
 
-  git clone [URL DU DEPOT]
+  git clone [\[URL DU DEPOT\]](https://github.com/GharibSidney/SNSF-Opti-SARA.git)
   
-  cd [NOM DU DEPOT]
+  cd [D:\Projects\CodeML 2\SNSF-Opti-SARA>]
   
   [npm install]
   
   [npm run dev]  
   
-  -> ouvrir http://localhost:[port]
+  -> ouvrir https://snsf-opti-sara-one.vercel.app/
 
 Note : la camera exige HTTPS (ou localhost). Pour tester sur telephone en
 local, utiliser un tunnel (Cloudflare Tunnel, ngrok) ou deployer en ligne.
@@ -168,8 +167,8 @@ Une photo avec ses images intermediaires :
   | Temps de traitement par paire (telephone milieu de gamme) | [.. s] |
 
 7.6 Modele entraine
-  Poids charges par l'app : [chemin]
-  Lien de telechargement (si > 100 Mo) : [URL]
+  Poids charges par l'app : sam_vit_h_4b8939.pth
+  Lien de telechargement (si > 100 Mo) : (https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth)
 
 
 ----------------------------------------------------------------
